@@ -55,12 +55,33 @@ app.get('/list',function(요청,응답){
   // DB에 post라는 콜렉션에서 모든데이터를 꺼내오기
   db.collection('post').find().toArray(function(에러,결과){
     console.log('결과는',결과) 
+    // ejs파일을 보내주고 { 이런이름으로 : 이런데이터를} 전달해준다
     응답.render('list.ejs',{posts : 결과})
   });
 })
 
+// delete 요청
+app.delete('/delete',function(요청,응답){
+  console.log(요청.body)
+  // 숫자로 치환해주는 함수 parseInt()
+  요청.body._id = parseInt(요청.body._id) 
+  // 요청.body에 담겨온 게시물번호를 가진 글을 db에서 찾아서 삭제하기
+  db.collection('post').deleteOne(요청.body,function(에러,결과){
+    console.log('삭제완료')
+    응답.status(200).send({message : '성공했습니다'})
+  })
+})
 
 
+// detail로 접속하면 detail.ejs 보여주기
+// /:id 를붙여서 detail/어쩌구 로 접속하면 
+app.get('/detail/:id',function(요청,응답){
+  // 요청.params.id = detail/:id 에서 :id 값  파라미터중 id라는 이름인애!
+  db.collection('post').findOne({_id : parseInt(요청.params.id)},function(에러,결과){
+    console.log('detail결과',결과)
+    응답.render('detail.ejs',{data : 결과})
+  })
+})
 
 
 

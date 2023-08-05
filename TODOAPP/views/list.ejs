@@ -4,14 +4,51 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 </head>
 <body>
 
   <% for(let i =0; i < posts.length; i++){ %>
-    <h4>할일 : <%= posts[i].제목 %></h4>
-    <p>할일 마감날짜 : <%= posts[i].날짜 %></p>
+    <div>
+      <p>글번호 <%= posts[i]._id %></p>
+      <h4>할일 : <%= posts[i].제목 %></h4>
+      <p>할일 마감날짜 : <%= posts[i].날짜 %></p>
+      <button class="delete" data-id="<%= posts[i]._id %>">삭제하기</button>
+    </div>
   <% } %>
 
+
+  <script>
+
+    // AJAX 문법 
+    // $.ajax({
+    //   method : '무슨메소드',
+    //   url : '/요청할경로',
+    //   data : '요청과 함께 보낼데이터'
+    // })
+    $('.delete').click(function(e){
+      // 내가누른 요소의 data-id 값을 가져와서 변수에 담기
+      let 글번호 = e.target.dataset.id;
+      let 지금누른거 = $(this)
+      // ajax요청
+      $.ajax({
+        method : 'DELETE',
+        url : '/delete',
+        data : {_id : 글번호}
+      })
+      // ajax요청하고 실행될 함수
+      .done(function(결과){
+        console.log('성공했음')
+        지금누른거.parent('div').fadeOut()
+      })
+      // 요청이 실패할시 실행되는 함수
+      .fail(function(a,b,c){ //xhr, textStatus, erroThrown 에러이유 3가지
+        console.log('실패했다구ㅠ',a,b,c)
+      })
+    })
+
+  </script>
 </body>
 </html>
 <!-- server.js에서 /list로 접속하게되면 posts라는 이름으로 디비데이터를 보내줌 -->
+<!-- AJAX 서버에 요청하는걸 도와주는js문법 특 새로고침없이됨 -->
