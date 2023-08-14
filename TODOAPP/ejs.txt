@@ -2,7 +2,9 @@ server.js에서 /list로 접속하게되면 posts라는 이름으로 디비데�
 
 EJS 기본적인 문법 
 <%= 서버에서 보낸 데이터의 변수명 %>
+<% 이건 그냥 자바스크립트 문법 %>
 <h2><%= user.name %></h2>
+<%- include('nav.html') %> html 파일 컴포넌트화 해서 넣기
 
 <% if (user) { %>
 <h2><%= user.name %></h2>

@@ -4,6 +4,14 @@ app.use(express.urlencoded({ extended: true }));
 // ejs관련 코드
 app.set('view engine','ejs')
 
+// HTML에서 PUT/DELETE 요청하려면 이거 서버에 복붙함 2줄 - npm 깔았음 npm install method-override
+const methodOverride = require('method-override')
+app.use(methodOverride('_method'))
+
+// CSS파일넣기
+// - public/main.css 생성 - server.js에 코드추가
+// 나는 static파일을 보관하기 위해 public폴더를 쓸거다
+app.use('/public', express.static('public'))
 const MongoClient = require('mongodb').MongoClient;
 
 let db;
@@ -83,6 +91,25 @@ app.get('/detail/:id',function(요청,응답){
   })
 })
 
+// edit으로 접속하면 미리 글채워지게 해놓기 (수정하기)
+// 디비에서 데이터가져와서 미리채워놓았음 파라미터 이용
+app.get('/edit/:id',function(요청,응답){
+
+  db.collection('post').findOne({_id : parseInt(요청.params.id)},function(에러,결과){
+    console.log(결과)
+    응답.render('edit.ejs',{ post : 결과 })
+  })
+})
+
+
+// 서버로 PUT요청 들어오면 게시물 수정 처리하기
+app.put('/edit',function(요청,응답){
+  // updateOne(어떤게시물수정,수정값,콜백함수)
+  db.collection('post').updateOne({_id: parseInt(요청.body.id)},{$set:{제목:요청.body.title, 날짜:요청.body.date}},function(에러,결과){
+    console.log('수정완료')
+    응답.redirect('/list')
+  })
+})
 
 
 
@@ -101,27 +128,14 @@ app.get('/detail/:id',function(요청,응답){
 
 
 
-
-
-
-// 누군가가 /pet 으로 방문을 하면 pet 관련된 안내문을 띄워주자
-// .get(경로, 함수(요청,응답){});
-// http://localhost:8080/pet 으로 접속하면 '펫용품을...' 보여준다!
-app.get('/pet',function(req,res){
-  res.send('펫용품을 쇼핑할 수 있는 페이지입니다.')
-});
-
-app.get('/beauty',function(req,res){
-  res.send('뷰티용품을 쇼핑할 수 있는 페이지입니다.')
-});
 
 // .sendFile(보낼파일경로) 홈페이지 접속했을떄 파일 보내주세요
-app.get('/',function(req,res){
-  res.sendFile(__dirname+'/index.html')
+app.get('/',function(요청,응답){
+  응답.render('index.ejs')
 });
 
-app.get('/write', function(req,res) { 
-  res.sendFile(__dirname +'/write.html')
+app.get('/write', function(요청,응답) { 
+  응답.render('write.ejs')
 });
 
 // 어떤 사람이 /add 경로로 post 요청 -> req로 전달
